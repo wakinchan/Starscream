@@ -226,6 +226,14 @@ public class WebSocket : NSObject, NSStreamDelegate {
         if url.scheme == "wss" || url.scheme == "https" {
             inStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
             outStream.setProperty(NSStreamSocketSecurityLevelNegotiatedSSL, forKey: NSStreamSocketSecurityLevelKey)
+
+            //http://stackoverflow.com/questions/27502249/wss-tls-websocket-connection-with-swift-ios
+            var settings = Dictionary<NSObject, NSObject>()
+            settings[kCFStreamSSLValidatesCertificateChain] = NSNumber(bool:false)
+            settings[kCFStreamSSLPeerName] = kCFNull
+
+            CFReadStreamSetProperty(self.inputStream, kCFStreamPropertySSLSettings, settings)
+            CFWriteStreamSetProperty(self.outputStream, kCFStreamPropertySSLSettings, settings)
         } else {
             certValidated = true //not a https session, so no need to check SSL pinning
         }
